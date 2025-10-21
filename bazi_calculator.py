@@ -1,40 +1,34 @@
 # bazi_calculator.py
 
-import collections
-import datetime
-from lunar_python import Lunar, Solar
+from name_analyzer import NameAnalyzer
 
 class BaziCalculator:
     def __init__(self):
-        self.gans = []
-        self.zhis = []
-        self.me = None
+        self.name_analyzer = NameAnalyzer()
 
-    def calculate_bazi(self, year, month, day, time, use_solar, is_female, surname):
-        # ... (rest of the calculate_bazi function remains the same)
+    def calculate_bazi(self, year, month, day, hour, surname, csv_path, best_elements=None):
+        bazi = {
+            "year": year,
+            "month": month,
+            "day": day,
+            "hour": hour
+        }
 
-    def get_missing_elements(self, elements_scores, threshold):
-        # ... (rest of the get_missing_elements function remains the same)
+        best_elements = best_elements or ["Wood", "Fire", "Earth", "Metal", "Water"]
+        character_data, surname_strokes = self.name_analyzer.get_best_characters(
+            best_elements, csv_path, surname
+        )
+        if surname_strokes is None:
+            surname_strokes = 0
 
-    def balance_elements(self, scores, missing_elements, element_relationships):
-        # ... (rest of the balance_elements function remains the same)
+        auspicious_names = self.name_analyzer.calculate_san_cai_wu_ge(character_data, surname_strokes)
+        return {
+            "bazi": bazi,
+            "surname": surname,
+            "surname_strokes": surname_strokes,
+            "auspicious_names": auspicious_names
+        }
 
-    def generate_names(self, missing_elements, csv_path, surname):
-        # ... (new function to generate baby names based on missing elements)
-
-def main():
+def calculate_bazi(year, month, day, hour, surname, csv_path, best_elements=None):
     calculator = BaziCalculator()
-    # Example usage:
-    year = 2022
-    month = 1
-    day = 1
-    time = 12
-    use_solar = True
-    is_female = False
-    surname = ""
-
-    missing_elements = calculator.calculate_bazi(year, month, day, time, use_solar, is_female, surname)
-    print(missing_elements)
-
-if __name__ == "__main__":
-    main()
+    return calculator.calculate_bazi(year, month, day, hour, surname, csv_path, best_elements)

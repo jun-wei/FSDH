@@ -1,8 +1,6 @@
-bidict
-lunar_python
-colorama 
-streamlit
-openAI
 fastapi
 uvicorn
 pydantic
+lunar_python
+colorama
+bidict
