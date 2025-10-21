@@ -1,0 +1,5 @@
+bidict
+lunar_python
+colorama 
+streamlit
+openAI
