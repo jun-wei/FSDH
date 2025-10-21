@@ -3,3 +3,6 @@ lunar_python
 colorama 
 streamlit
 openAI
+fastapi
+uvicorn
+pydantic
