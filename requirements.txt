@@ -1,6 +1,6 @@
 fastapi
 uvicorn
 pydantic
-lunar_python
+lunar_python==0.6.2
 colorama
 bidict
