@@ -52,16 +52,14 @@ class BaziCalculator:
         return f"{stem[0]}{branch[0]}", stem[1], branch[1]
 
     def calculate_bazi(self, year, month, day, hour, minute):
-        # Simplified pillar cycle logic
-        year_index = (year - 4) % 60
-        month_index = (year_index * 12 + month) % 60
-        day_index = (year_index * 30 + day) % 60
-        hour_index = (year_index * 24 + hour) % 60
+        # Use lunar_python for accurate GanZhi calculation
+        lunar = Lunar.fromYmdHms(year, month, day, hour, minute, 0)
+        eight_char = lunar.getEightChar()
 
-        year_pillar, y_s, y_b = self.get_pillar(year_index)
-        month_pillar, m_s, m_b = self.get_pillar(month_index)
-        day_pillar, d_s, d_b = self.get_pillar(day_index)
-        hour_pillar, h_s, h_b = self.get_pillar(hour_index)
+        year_pillar = eight_char.getYear()
+        month_pillar = eight_char.getMonth()
+        day_pillar = eight_char.getDay()
+        hour_pillar = eight_char.getTime()
 
         pillars = {
             "year_pillar": year_pillar,
@@ -70,10 +68,35 @@ class BaziCalculator:
             "hour_pillar": hour_pillar
         }
 
-        # Calculate 5 element scores
+        # Calculate element scores from the Heavenly Stems and Earthly Branches
+        all_chars = [
+            year_pillar[0], year_pillar[1],
+            month_pillar[0], month_pillar[1],
+            day_pillar[0], day_pillar[1],
+            hour_pillar[0], hour_pillar[1]
+        ]
+
+        # Element mapping
+        gan_element_map = {
+            "甲": "木", "乙": "木",
+            "丙": "火", "丁": "火",
+            "戊": "土", "己": "土",
+            "庚": "金", "辛": "金",
+            "壬": "水", "癸": "水"
+        }
+        zhi_element_map = {
+            "子": "水", "丑": "土", "寅": "木", "卯": "木",
+            "辰": "土", "巳": "火", "午": "火", "未": "土",
+            "申": "金", "酉": "金", "戌": "土", "亥": "水"
+        }
+
+        # Combine and count
         scores = {"木": 0, "火": 0, "土": 0, "金": 0, "水": 0}
-        for e in [y_s, y_b, m_s, m_b, d_s, d_b, h_s, h_b]:
-            scores[e] += 1
+        for ch in all_chars:
+            if ch in gan_element_map:
+                scores[gan_element_map[ch]] += 1
+            elif ch in zhi_element_map:
+                scores[zhi_element_map[ch]] += 1
 
         ranked, missing, strategies, classification, interpretation = self.rank_five_elements(scores)
 
