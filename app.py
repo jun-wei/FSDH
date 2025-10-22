@@ -1,10 +1,9 @@
 # app.py
-
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from bazi_calculator import calculate_bazi
 
-app = FastAPI(title="BaZi Five Elements API")
+app = FastAPI(title="BaZi Five Elements Analyzer API with Pillars and Percentages")
 
 class BaziRequest(BaseModel):
     birth_year: int
@@ -15,13 +14,17 @@ class BaziRequest(BaseModel):
 
 @app.get("/")
 def root():
-    return {"message": "BaZi Five Elements API is running"}
+    return {"message": "BaZi API is active and ready."}
 
 @app.post("/bazi")
 def bazi_endpoint(req: BaziRequest):
     try:
         result = calculate_bazi(
-            req.birth_year, req.birth_month, req.birth_day, req.birth_hour, req.birth_minute
+            req.birth_year,
+            req.birth_month,
+            req.birth_day,
+            req.birth_hour,
+            req.birth_minute,
         )
         return result
     except Exception as e:

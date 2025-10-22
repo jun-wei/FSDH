@@ -14,13 +14,45 @@ class BaziCalculator:
             ("申", "金"), ("酉", "金"), ("戌", "土"), ("亥", "水")
         ]
 
+        # English meaning and advice for each element
+        self.element_meanings = {
+            "木": {
+                "name": "Wood",
+                "traits": "Growth, creativity, expansion, leadership, and flexibility.",
+                "advice": "You are visionary and ambitious. Stay grounded to avoid overextending."
+            },
+            "火": {
+                "name": "Fire",
+                "traits": "Passion, energy, motivation, inspiration, and visibility.",
+                "advice": "You are charismatic and expressive. Balance intensity with patience."
+            },
+            "土": {
+                "name": "Earth",
+                "traits": "Stability, reliability, nurturing, practicality, and organization.",
+                "advice": "You are dependable and thoughtful. Avoid being overly cautious or stagnant."
+            },
+            "金": {
+                "name": "Metal",
+                "traits": "Discipline, strength, precision, logic, and determination.",
+                "advice": "You are principled and strong-willed. Loosen rigidity with empathy."
+            },
+            "水": {
+                "name": "Water",
+                "traits": "Wisdom, intuition, adaptability, and communication.",
+                "advice": "You are reflective and insightful. Avoid overthinking or hesitation."
+            }
+        }
+
+    # ------------------------------
+    # Core BaZi Logic
+    # ------------------------------
     def get_pillar(self, index):
         stem = self.heavenly_stems[index % 10]
         branch = self.earthly_branches[index % 12]
         return f"{stem[0]}{branch[0]}", stem[1], branch[1]
 
     def calculate_bazi(self, year, month, day, hour, minute):
-        # Simplified BaZi computation using cyclical indexes
+        # Simplified pillar cycle logic
         year_index = (year - 4) % 60
         month_index = (year_index * 12 + month) % 60
         day_index = (year_index * 30 + day) % 60
@@ -38,28 +70,35 @@ class BaziCalculator:
             "hour_pillar": hour_pillar
         }
 
+        # Calculate 5 element scores
         scores = {"木": 0, "火": 0, "土": 0, "金": 0, "水": 0}
         for e in [y_s, y_b, m_s, m_b, d_s, d_b, h_s, h_b]:
             scores[e] += 1
 
-        ranked, missing, strategies = self.rank_five_elements(scores)
+        ranked, missing, strategies, classification, interpretation = self.rank_five_elements(scores)
 
         return {
             "bazi": pillars,
+            "classification": classification,
             "five_elements_scores": scores,
             "ranked_elements": ranked,
             "weak_elements": missing,
-            "balance_strategies": strategies
+            "balance_strategies": strategies,
+            "interpretation": interpretation
         }
 
-    # --- Core Element Ranking Logic ---
+    # ------------------------------
+    # Element Ranking and Analysis
+    # ------------------------------
     def rank_five_elements(self, scores):
         elements_scores = list(scores.items())
         ranked_elements = sorted(elements_scores, key=lambda x: x[1], reverse=True)
         total_score = sum(score for _, score in ranked_elements)
-        average_score = total_score / 5
+        average_score = total_score / 5 if total_score > 0 else 0
 
-        # Determine missing or weak elements
+        # Normalize to percentage for charting
+        percentages = {e: round((v / total_score) * 100, 2) if total_score > 0 else 0 for e, v in scores.items()}
+
         missing_elements = [e for e, v in ranked_elements if v <= math.floor(average_score * 0.6)]
 
         element_relationships = {
@@ -71,8 +110,11 @@ class BaziCalculator:
         }
 
         strategies = self.balance_elements(scores, missing_elements, element_relationships)
+        classification = self.classify_balance(percentages)
+        interpretation = self.interpret_elements(classification)
+
         ranked_output = [{"element": e, "score": s} for e, s in ranked_elements]
-        return ranked_output, missing_elements, strategies
+        return ranked_output, missing_elements, strategies, classification, interpretation
 
     def balance_elements(self, scores, missing_elements, element_relationships):
         strategies = []
@@ -88,6 +130,48 @@ class BaziCalculator:
             strategies.append(f"Reduce excess influence from {ctrl} if too strong ({ctrl}克{element})")
         return strategies
 
+    def classify_balance(self, percentages):
+        dominant = max(percentages, key=percentages.get)
+        weakest = min(percentages, key=percentages.get)
+        dom_pct = percentages[dominant]
+        weak_pct = percentages[weakest]
+
+        if dom_pct >= 30:
+            summary = f"{dominant}-dominant chart ({dominant}旺格局)"
+        elif weak_pct <= 10:
+            summary = f"{weakest}-weak chart ({weakest}弱格局)"
+        elif all(15 <= p <= 25 for p in percentages.values()):
+            summary = "Balanced chart (五行均衡)"
+        else:
+            summary = "Mixed balance chart (中庸格局)"
+
+        return {
+            "percentages": percentages,
+            "dominant": dominant,
+            "weakest": weakest,
+            "summary": summary
+        }
+
+    def interpret_elements(self, classification):
+        dominant = classification["dominant"]
+        weakest = classification["weakest"]
+        dom_meaning = self.element_meanings[dominant]
+        weak_meaning = self.element_meanings[weakest]
+
+        return {
+            "dominant_element": {
+                "element": dominant,
+                "english_name": dom_meaning["name"],
+                "traits": dom_meaning["traits"],
+                "advice": dom_meaning["advice"]
+            },
+            "weakest_element": {
+                "element": weakest,
+                "english_name": weak_meaning["name"],
+                "traits": weak_meaning["traits"],
+                "advice": f"You need more {weak_meaning['name']} energy. {weak_meaning['advice']}"
+            }
+        }
 
 def calculate_bazi(year, month, day, hour, minute):
     calculator = BaziCalculator()
