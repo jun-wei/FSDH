@@ -20,7 +20,7 @@ class BaziCalculator:
     # From 1950 until 1981, Singapore’s civil time was UTC+7:30, not +8:00. On 1 Jan 1982, Singapore advanced clocks by 30 minutes, switching to UTC+8:00 permanently.
     # ------------------------------
     def _get_singapore_tz_offset_hours_1950_onwards(dt: datetime) -> float:
-    cutoff = datetime(1982, 1, 1, 0, 0)
+        cutoff = datetime(1982, 1, 1, 0, 0)
     if dt < cutoff:
         return 7.5  # UTC+07:30 (pre-1982 Singapore)
     else:
@@ -206,6 +206,7 @@ class BaziCalculator:
 def calculate_bazi(year, month, day, hour, minute, longitude: float = 103.8, tz_offset: float = 8.0):
     calc = BaziCalculator()
     return calc.calculate_bazi(year, month, day, hour, minute, longitude, tz_offset)
+
 
 
 
