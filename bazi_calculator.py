@@ -21,10 +21,10 @@ class BaziCalculator:
     # ------------------------------
     def _get_singapore_tz_offset_hours_1950_onwards(dt: datetime) -> float:
         cutoff = datetime(1982, 1, 1, 0, 0)
-    if dt < cutoff:
-        return 7.5  # UTC+07:30 (pre-1982 Singapore)
-    else:
-        return 8.0  # UTC+08:00 (modern Singapore Time)
+        if dt < cutoff:
+            return 7.5  # UTC+07:30 (pre-1982 Singapore)
+        else:
+            return 8.0  # UTC+08:00 (modern Singapore Time)
         
     # ------------------------------
     # True solar time conversion
@@ -206,6 +206,7 @@ class BaziCalculator:
 def calculate_bazi(year, month, day, hour, minute, longitude: float = 103.8, tz_offset: float = 8.0):
     calc = BaziCalculator()
     return calc.calculate_bazi(year, month, day, hour, minute, longitude, tz_offset)
+
 
 
 
